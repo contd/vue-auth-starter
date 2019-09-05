@@ -1,10 +1,13 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Home from './views/Home.vue'
+import Home from '@/views/Home.vue'
+import DashBoard from '@/views/Dashboard.vue'
+import RegisterUser from '@/views/RegisterUser.vue'
+import Login from '@/views/Login.vue'
 
 Vue.use(Router)
 
-export default new Router({
+const router = new Router({
   mode: 'history',
   base: process.env.BASE_URL,
   routes: [
@@ -14,12 +17,31 @@ export default new Router({
       component: Home
     },
     {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/About.vue')
+      path: '/dashboard',
+      name: 'dashboard',
+      component: DashBoard,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: RegisterUser
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: Login
     }
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  const loggedIn = localStorage.getItem('user')
+
+  if (to.matched.some(record => record.meta.requiresAuth) && !loggedIn) {
+    next('/')
+  }
+  next()
+})
+
+export default router
